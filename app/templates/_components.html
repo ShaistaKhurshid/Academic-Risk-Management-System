@@ -1,0 +1,68 @@
+{# Shared UI components (Phase 14). Import what you need, for example:
+     {% from "_components.html" import page_header, risk_badge, stat_card, empty_state %}
+   Colour is never the only signal: every risk badge also shows its text label and an icon. #}
+
+{# Page title row. Use with a call block to add action buttons on the right:
+     {% call page_header("Students", "All enrolled students") %} ...buttons... {% endcall %} #}
+{% macro page_header(title, subtitle=none, crumbs=none) -%}
+<header class="page-header">
+  <div>
+    {% if crumbs %}
+      <nav class="breadcrumb-lite" aria-label="Breadcrumb">
+        {% for label, href in crumbs %}
+          {% if href %}<a href="{{ href }}">{{ label }}</a>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}
+          {% if not loop.last %}<span aria-hidden="true"> / </span>{% endif %}
+        {% endfor %}
+      </nav>
+    {% endif %}
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p class="page-subtitle">{{ subtitle }}</p>{% endif %}
+  </div>
+  {% if caller %}<div class="page-actions">{{ caller() }}</div>{% endif %}
+</header>
+{%- endmacro %}
+
+{# One consistent Low / Medium / High / Pending badge. Anything unknown is Pending. #}
+{% macro risk_badge(classification, large=false) -%}
+  {%- if classification == "Low Risk" -%}
+    <span class="risk-badge risk-low{{ ' risk-lg' if large }}"><span class="risk-icon" aria-hidden="true">&#10003;</span>Low Risk</span>
+  {%- elif classification == "Medium Risk" -%}
+    <span class="risk-badge risk-medium{{ ' risk-lg' if large }}"><span class="risk-icon" aria-hidden="true">&#33;</span>Medium Risk</span>
+  {%- elif classification == "High Risk" -%}
+    <span class="risk-badge risk-high{{ ' risk-lg' if large }}"><span class="risk-icon" aria-hidden="true">&#9650;</span>High Risk</span>
+  {%- else -%}
+    <span class="risk-badge risk-pending{{ ' risk-lg' if large }}"><span class="risk-icon" aria-hidden="true">&#8943;</span>Pending</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{# Summary number card. tone: primary | low | medium | high | pending #}
+{% macro stat_card(label, value, tone="primary", hint=none) -%}
+<div class="card stat-card stat-{{ tone }}">
+  <div class="card-body">
+    <div class="stat-label">{{ label }}</div>
+    <div class="stat-value">{{ value }}</div>
+    {% if hint %}<div class="stat-hint">{{ hint }}</div>{% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{# Friendly "nothing here yet" block. Add a call block for a button. #}
+{% macro empty_state(title, text=none, icon="i") -%}
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">{{ icon }}</div>
+  <h2>{{ title }}</h2>
+  {% if text %}<p class="mb-3">{{ text }}</p>{% endif %}
+  {% if caller %}{{ caller() }}{% endif %}
+</div>
+{%- endmacro %}
+
+{# Small inline icons (decorative). #}
+{% macro icon(name) -%}
+  {%- if name == "download" -%}
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+  {%- elif name == "record" -%}
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+  {%- elif name == "back" -%}
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+  {%- endif -%}
+{%- endmacro %}

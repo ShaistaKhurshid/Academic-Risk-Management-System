@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header, empty_state %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+{{ page_header("Teacher Dashboard", "Record academic data and monitor student risk for your courses.") }}
+
+<h2 class="section-title mt-0">My assigned courses</h2>
+
+{% if courses %}
+  <div class="row g-3">
+    {% for course in courses %}
+      <div class="col-md-6 col-xl-4">
+        <div class="card course-card">
+          <div class="card-body">
+            <div class="course-code">{{ course.code }}</div>
+            <h3 class="course-title">{{ course.name }}</h3>
+            <p class="text-muted small mb-0">{{ course.enrolments | length }} enrolled student{{ '' if course.enrolments | length == 1 else 's' }}</p>
+          </div>
+          <div class="course-actions">
+            <a href="{{ url_for('teacher.risk_report', course_id=course.id) }}"
+               class="btn btn-primary btn-sm">
+                View Risk Report
+            </a>
+            <a href="{{ url_for('teacher.attendance', course_id=course.id) }}"
+               class="btn btn-outline-primary btn-sm">
+                Manage Attendance
+            </a>
+            <a href="{{ url_for('teacher.assessments', course_id=course.id) }}"
+               class="btn btn-outline-primary btn-sm">
+                Manage Assessments
+            </a>
+            <a href="{{ url_for('teacher.assignments', course_id=course.id) }}"
+               class="btn btn-outline-primary btn-sm">
+                Manage Assignments
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card"><div class="card-body">
+    {{ empty_state("No courses are assigned to you yet.", "An administrator assigns courses.") }}
+  </div></div>
+{% endif %}
+{% endblock %}

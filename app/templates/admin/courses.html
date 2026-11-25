@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+{% call page_header("Courses") %}
+  <a class="btn btn-primary" href="{{ url_for('admin.course_add') }}">Add course</a>
+{% endcall %}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Code</th><th>Name</th><th>Teacher</th><th>Students</th><th scope="col" class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+        <tr>
+          <td>{{ course.code }}</td>
+          <td>{{ course.name }}</td>
+          <td>
+            {% if course.teacher %}
+              {{ course.teacher.full_name }}
+              {% if not course.teacher.is_active %}<span class="badge text-bg-secondary">inactive</span>{% endif %}
+            {% else %}
+              <span class="badge text-bg-warning">Not assigned</span>
+            {% endif %}
+          </td>
+          <td>{{ course.enrolments | length }}</td>
+          <td class="table-actions">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.course_enrol', course_id=course.id) }}">Enrolment</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.course_edit', course_id=course.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('admin.course_delete', course_id=course.id) }}" class="d-inline"
+                  data-confirm="Delete this course? Only courses with no records can be deleted.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No courses yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+
+{% block title %}Create Assignment{% endblock %}
+
+{% block content %}
+{% call page_header("Create Assignment", course.name ~ " (" ~ course.code ~ ")",
+                    crumbs=[("Assignments", url_for('teacher.assignments', course_id=course.id)), ("Create", none)]) %}
+{% endcall %}
+
+<div class="card form-card">
+    <div class="card-body">
+        <p class="mb-3"><strong>Course:</strong> {{ course.name }} ({{ course.code }})</p>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control", placeholder="Enter assignment title") }}
+                <div class="form-text">The title cannot be changed after the assignment is created.</div>
+                {% for error in form.title.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.deadline.label(class="form-label") }}
+                {{ form.deadline(class="form-control") }}
+                {% for error in form.deadline.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+            </div>
+
+            <div class="form-actions">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('teacher.assignments', course_id=course.id) }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

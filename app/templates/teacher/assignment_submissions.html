@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+
+{% block title %}Assignment Submissions{% endblock %}
+
+{% block content %}
+{% call page_header("Manage Assignment Submissions", course.name ~ " (" ~ course.code ~ ")",
+                    crumbs=[("Assignments", url_for('teacher.assignments', course_id=course.id)), (assignment.title, none)]) %}
+    <a href="{{ url_for('teacher.assignments', course_id=course.id) }}" class="btn btn-outline-secondary">Back to Assignments</a>
+{% endcall %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3 col-lg-2">Course</dt>
+            <dd class="col-sm-9 col-lg-10">{{ course.name }} ({{ course.code }})</dd>
+            <dt class="col-sm-3 col-lg-2">Assignment</dt>
+            <dd class="col-sm-9 col-lg-10">{{ assignment.title }}</dd>
+            <dt class="col-sm-3 col-lg-2">Deadline</dt>
+            <dd class="col-sm-9 col-lg-10 mb-0">{{ assignment.deadline }}</dd>
+        </dl>
+    </div>
+</div>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <caption class="visually-hidden">Submission status for each student</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Student ID</th>
+                        <th scope="col">Student Name</th>
+                        <th scope="col" style="min-width: 160px;">Submission Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for entry in form.submissions %}
+                        <tr>
+                            <td>
+                                {{ entry.student_id() }}
+                                {% set student = students_by_id.get(entry.student_id.data|int) %}
+                                {{ entry.student_id.data }}
+                            </td>
+
+                            <td class="fw-semibold">
+                                {{ student.name if student else "Student" }}
+                            </td>
+
+                            <td>
+                                {{ entry.status(class="form-select") }}
+
+                                {% for error in entry.status.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3">
+        Submitted and Late Submission count as completed. Not Submitted and Excused count as incomplete.
+    </p>
+
+    <div class="form-actions">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('teacher.assignments', course_id=course.id) }}" class="btn btn-outline-secondary">Back to Assignments</a>
+    </div>
+</form>
+{% endblock %}

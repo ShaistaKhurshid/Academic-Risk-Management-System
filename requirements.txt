@@ -1,0 +1,12 @@
+# Works on Python 3.12 and 3.13 (all packages are pure Python or ship wheels).
+# Ranges (not exact pins) so pip can pick versions that match your Python.
+Flask>=3.0,<4.0
+Flask-SQLAlchemy>=3.1,<4.0
+SQLAlchemy>=2.0.31,<2.1
+Flask-Login>=0.6.3,<0.7
+Flask-WTF>=1.2.1,<2.0
+pytest>=8.0
+reportlab>=4.0,<6.0
+openpyxl>=3.1,<4.0
+# Used by the Phase 13 export tests to read the generated PDFs
+pypdf>=4.0

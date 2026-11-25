@@ -1,0 +1,20 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local database (contains data, never commit it; seed.py recreates demo data)
+instance/
+*.db
+*.sqlite3
+
+# Secrets and editor files
+.env
+.vscode/
+.idea/
+
+.venv/

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+{% call page_header("Students") %}
+  <a class="btn btn-primary" href="{{ url_for('admin.student_add') }}">Add student</a>
+{% endcall %}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Student ID</th><th>Name</th><th>Email</th><th>Semester</th><th scope="col" class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td>{{ student.student_id }}</td>
+          <td>{{ student.name }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.semester }}</td>
+          <td class="table-actions">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.student_detail', student_id=student.id) }}">View</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.student_edit', student_id=student.id) }}">Edit</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No students yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header, stat_card %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+{{ page_header("Administrator Dashboard", "Overview of students, teachers and courses in the system.") }}
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-4">
+    <div class="card stat-card stat-primary"><div class="card-body">
+      <div class="stat-label">Total students</div>
+      <div class="stat-value">{{ total_students }}</div>
+      <div class="stat-hint">registered in the system</div>
+    </div></div>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <div class="card stat-card stat-low"><div class="card-body">
+      <div class="stat-label">Total teachers</div>
+      <div class="stat-value">{{ total_teachers }}</div>
+      <div class="stat-hint">teacher accounts</div>
+    </div></div>
+  </div>
+  <div class="col-sm-12 col-lg-4">
+    <div class="card stat-card stat-medium"><div class="card-body">
+      <div class="stat-label">Total courses</div>
+      <div class="stat-value">{{ total_courses }}</div>
+      <div class="stat-hint">available for enrolment</div>
+    </div></div>
+  </div>
+</div>
+
+<h2 class="section-title">Manage</h2>
+<div class="row g-3">
+  <div class="col-md-4">
+    <a class="card quick-link-card" href="{{ url_for('admin.student_list') }}">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Students</h3>
+        <p class="text-muted small mb-0">Add, edit and review student records.</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a class="card quick-link-card" href="{{ url_for('admin.teacher_list') }}">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Teachers</h3>
+        <p class="text-muted small mb-0">Create teacher accounts and activate or deactivate them.</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a class="card quick-link-card" href="{{ url_for('admin.course_list') }}">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Courses &amp; Enrolment</h3>
+        <p class="text-muted small mb-0">Assign teachers to courses and enrol students.</p>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}

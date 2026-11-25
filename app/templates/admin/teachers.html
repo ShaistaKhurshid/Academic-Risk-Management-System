@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+{% block title %}Teachers{% endblock %}
+
+{% block content %}
+{% call page_header("Teacher accounts") %}
+  <a class="btn btn-primary" href="{{ url_for('admin.teacher_add') }}">Add teacher</a>
+{% endcall %}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Courses</th><th>Status</th><th scope="col" class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for teacher in teachers %}
+        <tr>
+          <td>{{ teacher.full_name }}</td>
+          <td>{{ teacher.email }}</td>
+          <td>{{ teacher.courses | length }}</td>
+          <td>
+            {% if teacher.is_active %}
+              <span class="badge text-bg-success">Active</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="table-actions">
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.teacher_edit', user_id=teacher.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('admin.teacher_toggle_active', user_id=teacher.id) }}" class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              {% if teacher.is_active %}
+                <button type="submit" class="btn btn-sm btn-outline-warning">Deactivate</button>
+              {% else %}
+                <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No teacher accounts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="text-muted small mt-3">Teachers are deactivated, not deleted, so their follow-up history is always kept.</p>
+{% endblock %}

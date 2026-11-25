@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+
+{% block title %}Enter Assessment Marks{% endblock %}
+
+{% block content %}
+{% call page_header("Enter Assessment Marks", course.code ~ " - " ~ course.name,
+                    crumbs=[("Assessments", url_for('teacher.assessments', course_id=course.id)), (assessment.title, none)]) %}
+    <a href="{{ url_for('teacher.assessments', course_id=course.id) }}" class="btn btn-outline-secondary">Back to Assessments</a>
+{% endcall %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3 col-lg-2">Course</dt>
+            <dd class="col-sm-9 col-lg-10">{{ course.code }} - {{ course.name }}</dd>
+            <dt class="col-sm-3 col-lg-2">Assessment</dt>
+            <dd class="col-sm-9 col-lg-10">{{ assessment.title }}</dd>
+            <dt class="col-sm-3 col-lg-2">Maximum Marks</dt>
+            <dd class="col-sm-9 col-lg-10 mb-0">{{ assessment.max_marks }}</dd>
+        </dl>
+    </div>
+</div>
+
+{% if students %}
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <caption class="visually-hidden">Marks obtained by each student. Leave a mark empty if the student has not been graded.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Student Name</th>
+                        <th scope="col">Roll Number</th>
+                        <th scope="col" style="min-width: 170px;">Marks Obtained</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for entry in form.entries %}
+                    {% set student = students[loop.index0] %}
+
+                    <tr>
+                        <td class="fw-semibold">{{ student.name }}</td>
+                        <td>{{ student.student_id }}</td>
+
+                        <td>
+                            {{ entry.student_id() }}
+
+                            {{ entry.marks_obtained(
+                                class="form-control",
+                                min="0",
+                                max=assessment.max_marks,
+                                step="1"
+                            ) }}
+
+                            {% for error in entry.marks_obtained.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3">Leave a mark empty if the student has not been graded &ndash; an empty mark is never treated as zero.</p>
+
+    <div class="form-actions">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('teacher.assessments', course_id=course.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+{% else %}
+
+    <div class="alert alert-warning">
+        No students are enrolled in this course yet.
+    </div>
+
+{% endif %}
+{% endblock %}

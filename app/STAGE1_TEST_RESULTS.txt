@@ -1,0 +1,30 @@
+# Academic Risk System
+## Milestone 2 – Stage 1 Verification
+
+Date: 21 November 2026
+
+### Automated Test Results
+
+Command: `python -m pytest -v`
+
+Total tests: 114
+Passed: 114
+Failed: 0
+Errors: 0
+
+Execution time: 122.34 seconds
+
+### Verified Modules
+- Student Management
+- Teacher Management
+- Course Management
+- Teacher Assignment
+- Student Enrolment
+- Authentication and Session Security
+- Database Constraints
+- Seed Management
+
+### Final Status
+PASSED – All 114 automated tests passed.
+
+Milestone 2 Stage 1 is ready for the next development phase.

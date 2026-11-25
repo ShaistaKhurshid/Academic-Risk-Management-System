@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header, risk_badge, stat_card, empty_state, icon %}
+
+{% block title %}Academic Risk Report{% endblock %}
+
+{# One compact "value + bar" display for an indicator percentage. None = unavailable (never zero). #}
+{% macro metric(value) -%}
+    {%- if value is none -%}
+        <span class="metric-pending">Pending</span>
+    {%- else -%}
+        <span class="fw-semibold tabular">{{ "%.1f"|format(value) }}%</span>
+        <div class="mini-bar" aria-hidden="true"><span style="width: {{ [[value, 0]|max, 100]|min }}%"></span></div>
+    {%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<div>
+
+    {% call page_header("Academic Risk Report", course.code ~ " - " ~ course.name,
+                        crumbs=[("Dashboard", url_for('teacher.dashboard')), ("Risk report", none)]) %}
+        {% if student_reports %}
+            <form method="post"
+                  action="{{ url_for('teacher.record_course_risk_assessments', course_id=course.id) }}"
+                  data-confirm="Record a risk assessment snapshot for every enrolled student? Students whose results have not changed are skipped.">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-export">{{ icon("record") }} Record Risk Assessments</button>
+            </form>
+            <a href="{{ url_for('teacher.export_course_risk_pdf', course_id=course.id) }}"
+               class="btn btn-outline-danger btn-export btn-export-pdf">{{ icon("download") }} Export PDF</a>
+            <a href="{{ url_for('teacher.export_course_risk_excel', course_id=course.id) }}"
+               class="btn btn-outline-success btn-export btn-export-xlsx">{{ icon("download") }} Export Excel</a>
+        {% endif %}
+        <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    {% endcall %}
+
+    {% if student_reports %}
+
+        <!-- Risk summary cards -->
+        <section aria-labelledby="summary-title">
+            <h2 class="visually-hidden" id="summary-title">Risk summary</h2>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+                <div class="col">
+                    <div class="card stat-card stat-primary">
+                        <div class="card-body">
+                            <div class="stat-label">Total Students</div>
+                            <div class="stat-value">{{ risk_summary.total_students }}</div>
+                            <div class="stat-hint">enrolled in this course</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card stat-card stat-low">
+                        <div class="card-body">
+                            <div class="stat-label"><span aria-hidden="true">&#10003;</span> Low Risk</div>
+                            <div class="stat-value">{{ risk_summary.low_risk }}</div>
+                            <div class="stat-hint">score 0 &ndash; 29.99</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card stat-card stat-medium">
+                        <div class="card-body">
+                            <div class="stat-label"><span aria-hidden="true">!</span> Medium Risk</div>
+                            <div class="stat-value">{{ risk_summary.medium_risk }}</div>
+                            <div class="stat-hint">score 30 &ndash; 59.99</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card stat-card stat-high">
+                        <div class="card-body">
+                            <div class="stat-label"><span aria-hidden="true">&#9650;</span> High Risk</div>
+                            <div class="stat-value">{{ risk_summary.high_risk }}</div>
+                            <div class="stat-hint">score 60 &ndash; 100</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card stat-card stat-pending">
+                        <div class="card-body">
+                            <div class="stat-label"><span aria-hidden="true">&#8943;</span> Pending</div>
+                            <div class="stat-value">{{ risk_summary.pending }}</div>
+                            <div class="stat-hint">not enough data yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Distribution chart and filters -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header">Risk Distribution</div>
+                    <div class="card-body">
+                        <div class="chart-box mx-auto" style="max-width: 260px;">
+                            <canvas id="riskDistributionChart" role="img"
+                                    aria-label="Doughnut chart: {{ risk_summary.low_risk }} Low Risk, {{ risk_summary.medium_risk }} Medium Risk, {{ risk_summary.high_risk }} High Risk, {{ risk_summary.pending }} Pending"></canvas>
+                        </div>
+                        <p class="chart-fallback text-muted small mt-2 mb-0" hidden>
+                            The chart could not be loaded (an internet connection is needed for charts).
+                            The summary cards above show the same numbers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header">Student Risk Filters</div>
+                    <div class="card-body">
+                        <!-- Student Risk Filters -->
+                        <div class="risk-filter-bar" role="group" aria-label="Filter students by risk classification">
+                            <strong class="filter-label">Filter Students:</strong>
+
+                            <button type="button" class="btn btn-outline-primary btn-sm risk-filter active"
+                                    data-filter="All" aria-pressed="true">
+                                All Students <span class="count">{{ risk_summary.total_students }}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm risk-filter"
+                                    data-filter="Low Risk" aria-pressed="false">
+                                Low Risk <span class="count">{{ risk_summary.low_risk }}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm risk-filter"
+                                    data-filter="Medium Risk" aria-pressed="false">
+                                Medium Risk <span class="count">{{ risk_summary.medium_risk }}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm risk-filter"
+                                    data-filter="High Risk" aria-pressed="false">
+                                High Risk <span class="count">{{ risk_summary.high_risk }}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm risk-filter"
+                                    data-filter="Pending" aria-pressed="false">
+                                Pending <span class="count">{{ risk_summary.pending }}</span>
+                            </button>
+                        </div>
+                        <p class="small text-muted mt-3 mb-0" id="filter-status" role="status" aria-live="polite">
+                            Showing all {{ risk_summary.total_students }} students.
+                        </p>
+                        <hr>
+                        <p class="small text-muted mb-0">
+                            <strong>How to read this report:</strong> the overall score combines attendance (40%),
+                            academic performance (40%) and assignment completion (20%). Higher means more risk.
+                            <strong>Pending</strong> means there is not enough recorded data &ndash; it is never treated as zero.
+                            Use <em>Show details</em> on a row to see why a student is flagged and what is recommended.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Academic Risk Summary -->
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <strong>Student Academic Risk Summary</strong>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="toggle-all-details" hidden
+                        aria-pressed="false">Expand all details</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="risk-table" style="min-width: 760px;">
+                    <caption class="visually-hidden">Attendance, performance, assignment completion, risk score and classification for each enrolled student</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Student</th>
+                            <th scope="col">Attendance</th>
+                            <th scope="col">Performance</th>
+                            <th scope="col">Assignments</th>
+                            <th scope="col">Risk Score</th>
+                            <th scope="col">Classification</th>
+                            <th scope="col" class="text-end">Details</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in student_reports %}
+
+                            {% set student = item.student %}
+                            {% set report = item.report %}
+                            {% set sid = student.id %}
+
+                            <!-- Student Summary -->
+                            <tr class="student-record-row student-risk-row" data-risk="{{ report.classification }}">
+                                <td>
+                                    <a href="{{ url_for('teacher.student_risk_detail', course_id=course.id, student_id=student.id) }}"
+                                       class="fw-bold text-decoration-none">{{ student.name }}</a>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ student.student_id }}
+                                    </small>
+                                    <br>
+                                    <a href="{{ url_for('teacher.student_risk_detail', course_id=course.id, student_id=student.id) }}"
+                                       class="small">View details</a>
+                                </td>
+
+                                <td>{{ metric(report.attendance.attendance_percentage if report.attendance.available else none) }}</td>
+                                <td>{{ metric(report.performance.performance_percentage if report.performance.available else none) }}</td>
+                                <td>{{ metric(report.assignments.completion_percentage if report.assignments.available else none) }}</td>
+
+                                <td>
+                                    {% if report.overall.available %}
+                                        <span class="score-chip">{{ "%.1f"|format(report.overall.overall_risk_score) }}</span>
+                                    {% else %}
+                                        <span class="metric-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ risk_badge(report.classification) }}</td>
+
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-primary btn-sm risk-details-btn details-toggle" hidden
+                                            aria-expanded="false"
+                                            aria-controls="why-{{ sid }} act-{{ sid }} data-{{ sid }}"
+                                            data-rows="why-{{ sid }} act-{{ sid }} data-{{ sid }}">Show details</button>
+                                </td>
+                            </tr>
+
+                            <!-- Risk Explanations -->
+                            <tr class="student-record-row risk-details-panel" id="why-{{ sid }}" data-risk="{{ report.classification }}">
+                                <td colspan="7">
+                                    <div class="detail-title">Why is this student flagged?</div>
+
+                                    {% if report.risk_explanations %}
+                                        <ul class="mb-0 mt-1">
+                                            {% for explanation in report.risk_explanations %}
+                                                <li>{{ explanation }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0 mt-1">
+                                            No active risk flags.
+                                        </p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- Recommended Interventions -->
+                            <tr class="student-record-row risk-details-panel" id="act-{{ sid }}" data-risk="{{ report.classification }}">
+                                <td colspan="7">
+                                    <div class="detail-title">Recommended Interventions</div>
+
+                                    {% if report.interventions %}
+                                        <ul class="mb-0 mt-1">
+                                            {% for intervention in report.interventions %}
+                                                <li>{{ intervention }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0 mt-1">
+                                            No intervention currently recommended.
+                                        </p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- Data Availability -->
+                            <tr class="student-record-row risk-details-panel risk-details-last" id="data-{{ sid }}" data-risk="{{ report.classification }}">
+                                <td colspan="7" class="border-bottom">
+                                    <small class="text-muted">
+                                        <strong>Unavailable indicators:</strong>
+
+                                        {% if report.overall.unavailable_indicators %}
+                                            {{ report.overall.unavailable_indicators | join(", ") }}
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </small>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        <tr class="risk-no-match" id="no-match-row">
+                            <td colspan="7" class="text-center text-muted py-4">No students match this filter.</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="card">
+            <div class="card-body">
+                {% call empty_state("No students are enrolled in this course yet.", "Once an administrator enrols students, their risk summary will appear here.", icon="i") %}
+                    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                {% endcall %}
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if student_reports %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script nonce="{{ csp_nonce }}">
+(function () {
+    "use strict";
+
+    // ---- Risk distribution chart (falls back to text if Chart.js did not load) ----
+    var canvas = document.getElementById("riskDistributionChart");
+    if (typeof Chart === "undefined") {
+        document.querySelectorAll(".chart-fallback").forEach(function (note) { note.hidden = false; });
+        if (canvas) { canvas.parentNode.hidden = true; }
+    } else {
+        new Chart(canvas, {
+            type: "doughnut",
+            data: {
+                labels: ["Low Risk", "Medium Risk", "High Risk", "Pending"],
+                datasets: [{
+                    data: [
+                        {{ risk_summary.low_risk }},
+                        {{ risk_summary.medium_risk }},
+                        {{ risk_summary.high_risk }},
+                        {{ risk_summary.pending }}
+                    ],
+                    backgroundColor: ["#198754", "#c99400", "#dc3545", "#6c757d"],
+                    borderWidth: 2,
+                    borderColor: "#ffffff"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: "bottom" } }
+            }
+        });
+    }
+
+    // ---- Show / hide the "why" and "interventions" rows ----
+    // Without JavaScript all details stay visible; with it they start collapsed.
+    var table = document.getElementById("risk-table");
+    var toggles = Array.prototype.slice.call(table.querySelectorAll(".details-toggle"));
+    var toggleAll = document.getElementById("toggle-all-details");
+
+    function rowsFor(button) {
+        return button.dataset.rows.split(" ").map(function (id) { return document.getElementById(id); });
+    }
+    function setOpen(button, open) {
+        rowsFor(button).forEach(function (row) { row.hidden = !open; });
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.textContent = open ? "Hide details" : "Show details";
+    }
+    toggles.forEach(function (button) {
+        button.hidden = false;
+        setOpen(button, false);
+        button.addEventListener("click", function () {
+            setOpen(button, button.getAttribute("aria-expanded") !== "true");
+            syncToggleAll();
+        });
+    });
+
+    function syncToggleAll() {
+        var allOpen = toggles.length > 0 && toggles.every(function (b) { return b.getAttribute("aria-expanded") === "true"; });
+        toggleAll.textContent = allOpen ? "Collapse all details" : "Expand all details";
+        toggleAll.setAttribute("aria-pressed", allOpen ? "true" : "false");
+    }
+    toggleAll.hidden = false;
+    toggleAll.addEventListener("click", function () {
+        var open = toggleAll.getAttribute("aria-pressed") !== "true";
+        toggles.forEach(function (b) { setOpen(b, open); });
+        syncToggleAll();
+    });
+
+    // ---- Filters ----
+    var filterButtons = document.querySelectorAll(".risk-filter");
+    var status = document.getElementById("filter-status");
+    var noMatch = document.getElementById("no-match-row");
+
+    filterButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            var selected = button.dataset.filter;
+
+            filterButtons.forEach(function (other) {
+                other.classList.remove("active", "btn-primary");
+                other.setAttribute("aria-pressed", "false");
+            });
+            button.classList.add("active");
+            button.setAttribute("aria-pressed", "true");
+
+            var shown = 0;
+            document.querySelectorAll(".student-risk-row").forEach(function (row) {
+                var visible = selected === "All" || row.dataset.risk === selected;
+                if (visible) { shown += 1; }
+                row.style.display = visible ? "" : "none";
+            });
+            // The detail rows follow their student's row (the `hidden` attribute keeps them collapsed).
+            document.querySelectorAll(".risk-details-panel").forEach(function (row) {
+                row.style.display = (selected === "All" || row.dataset.risk === selected) ? "" : "none";
+            });
+
+            noMatch.style.display = shown === 0 ? "table-row" : "none";
+            status.textContent = shown === 0
+                ? "No students match this filter."
+                : "Showing " + shown + (shown === 1 ? " student" : " students") +
+                  (selected === "All" ? "." : " (" + selected + ").");
+        });
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

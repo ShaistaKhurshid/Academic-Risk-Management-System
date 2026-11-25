@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header, empty_state %}
+
+{% block title %}Attendance - {{ course.code }}{% endblock %}
+
+{% block content %}
+{% call page_header("Attendance Management", course.code ~ " - " ~ course.name,
+                    crumbs=[("Dashboard", url_for('teacher.dashboard')), ("Attendance", none)]) %}
+    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+{% endcall %}
+
+{% if students %}
+    <div class="card">
+        <div class="card-header">Record or Edit Attendance</div>
+
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-4" style="max-width: 280px;">
+                    {{ form.session_date.label(class="form-label") }}
+                    {{ form.session_date(class="form-control", type="date") }}
+                    <div class="form-text">Choose the class date, then set each student's status.</div>
+
+                    {% for error in form.session_date.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="table-responsive border rounded mb-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <caption class="visually-hidden">Attendance status for each enrolled student</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Student ID</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col" style="min-width: 150px;">Attendance Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for entry in form.entries %}
+                                {% set student = students[loop.index0] %}
+
+                                <tr>
+                                    <td>
+                                        {{ student.student_id }}
+                                        {{ entry.student_id() }}
+                                    </td>
+
+                                    <td class="fw-semibold">{{ student.name }}</td>
+
+                                    <td>
+                                        {{ entry.status(class="form-select") }}
+
+                                        {% for error in entry.status.errors %}
+                                            <div class="text-danger small">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="small text-muted">Present and Present (Late) both count as attended; Absent does not.</p>
+
+                <div class="form-actions">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-warning">
+        No students are enrolled in this course yet.
+        Please contact your administrator.
+    </div>
+{% endif %}
+{% endblock %}

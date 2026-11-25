@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header, empty_state %}
+
+{% block title %}Assessments - {{ course.code }}{% endblock %}
+
+{% block content %}
+{% call page_header("Assessment Management", course.code ~ " - " ~ course.name,
+                    crumbs=[("Dashboard", url_for('teacher.dashboard')), ("Assessments", none)]) %}
+    <a href="{{ url_for('teacher.create_assessment', course_id=course.id) }}" class="btn btn-primary">+ Create Assessment</a>
+    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+{% endcall %}
+
+<h2 class="section-title mt-0">Assessments</h2>
+
+{% if assessments %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <caption class="visually-hidden">Assessments for this course</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Assessment Title</th>
+                        <th scope="col">Maximum Marks</th>
+                        <th scope="col">Assessment Date</th>
+                        <th scope="col" class="text-end">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for assessment in assessments %}
+                        <tr>
+                            <td class="fw-semibold">{{ assessment.title }}</td>
+                            <td>{{ assessment.max_marks }}</td>
+                            <td>{{ assessment.assessment_date or "Not specified" }}</td>
+                            <td class="table-actions">
+                                <a href="{{ url_for('teacher.assessment_marks', assessment_id=assessment.id) }}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Manage Marks
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No assessments have been created for this course yet.
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+{% from "_components.html" import page_header %}
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+{{ page_header(heading) }}
+
+<div class="card form-card">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.student_id, help="The college ID, for example S2026001. Must be unique.") }}
+      {{ render_field(form.name) }}
+      {{ render_field(form.email) }}
+      {{ render_field(form.semester, help="For example: Semester 3") }}
+      <div class="form-actions">
+        {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-outline-secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

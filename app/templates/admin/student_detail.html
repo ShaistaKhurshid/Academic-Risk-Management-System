@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+{% block title %}{{ student.name }}{% endblock %}
+
+{% block content %}
+{% call page_header(student.name, crumbs=[("Students", url_for('admin.student_list')), (student.name, none)]) %}
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin.student_list') }}">Back to students</a>
+  <a class="btn btn-primary" href="{{ url_for('admin.student_edit', student_id=student.id) }}">Edit</a>
+{% endcall %}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-3">Student ID</dt><dd class="col-sm-9">{{ student.student_id }}</dd>
+      <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ student.email }}</dd>
+      <dt class="col-sm-3">Semester / class</dt><dd class="col-sm-9">{{ student.semester }}</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">Enrolled courses</div>
+  {% if enrolments %}
+  <ul class="list-group list-group-flush">
+    {% for enrolment in enrolments %}
+    <li class="list-group-item">
+      {{ enrolment.course.code }} &ndash; {{ enrolment.course.name }}
+      <span class="text-muted small">
+        (Teacher: {{ enrolment.course.teacher.full_name if enrolment.course.teacher else 'not assigned' }})
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="card-body text-muted">Not enrolled in any course. Enrol students from the Courses page.</div>
+  {% endif %}
+</div>
+
+<div class="card border-danger">
+  <div class="card-header text-danger">Delete student</div>
+  <div class="card-body">
+    {% if blockers %}
+      <p class="mb-0 text-muted">
+        This student cannot be deleted because they still have: {{ blockers }}.
+        Academic history is kept.
+      </p>
+    {% else %}
+      <p class="text-muted">This student has no enrolments or records, so they can be deleted. This cannot be undone.</p>
+      <form method="post" action="{{ url_for('admin.student_delete', student_id=student.id) }}"
+            data-confirm="Delete this student permanently?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger">Delete student</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

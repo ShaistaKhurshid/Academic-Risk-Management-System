@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_components.html" import page_header %}
+
+{% block title %}Create Assessment{% endblock %}
+
+{% block content %}
+{% call page_header("Create Assessment", course.code ~ " - " ~ course.name,
+                    crumbs=[("Assessments", url_for('teacher.assessments', course_id=course.id)), ("Create", none)]) %}
+    <a href="{{ url_for('teacher.assessments', course_id=course.id) }}" class="btn btn-outline-secondary">Back to Assessments</a>
+{% endcall %}
+
+<div class="card form-card">
+    <div class="card-header">Assessment Details</div>
+
+    <div class="card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control", placeholder="e.g. Midterm Examination") }}
+                {% for error in form.title.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.max_marks.label(class="form-label") }}
+                {{ form.max_marks(class="form-control", placeholder="e.g. 100") }}
+                {% for error in form.max_marks.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.assessment_date.label(class="form-label") }}
+                {{ form.assessment_date(class="form-control", type="date") }}
+                {% for error in form.assessment_date.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="form-actions">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('teacher.assessments', course_id=course.id) }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

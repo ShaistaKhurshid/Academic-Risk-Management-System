@@ -1,0 +1,306 @@
+/* ==========================================================================
+   Academic Risk Management System - design system (Phase 14)
+   Sits on top of Bootstrap 5. Colours, spacing and components are defined once
+   here as CSS variables so every page looks the same.
+   ========================================================================== */
+
+:root {
+  /* Brand */
+  --ars-primary: #1f3a5f;
+  --ars-primary-hover: #2b4d7e;
+  --ars-primary-rgb: 31, 58, 95;
+  --ars-primary-soft: #e8eef7;
+  --ars-accent: #3b6fb6;
+
+  /* Surfaces and text */
+  --ars-bg: #f4f6fa;
+  --ars-surface: #ffffff;
+  --ars-border: #dde2ea;
+  --ars-text: #1b2433;
+  --ars-muted: #5b6574;
+  --ars-head-bg: #eef2f8;
+  --ars-head-text: #33415c;
+  --ars-focus: #0b5ed7;
+
+  /* Risk classifications: background, text, accent (each text/bg pair passes WCAG AA) */
+  --risk-low-bg: #d1e7dd;
+  --risk-low-text: #0f5132;
+  --risk-low-accent: #198754;
+  --risk-medium-bg: #fff3cd;
+  --risk-medium-text: #664d03;
+  --risk-medium-accent: #c99400;
+  --risk-high-bg: #f8d7da;
+  --risk-high-text: #842029;
+  --risk-high-accent: #dc3545;
+  --risk-pending-bg: #e2e3e5;
+  --risk-pending-text: #41464b;
+  --risk-pending-accent: #6c757d;
+
+  /* Shape and spacing */
+  --ars-radius: 0.75rem;
+  --ars-radius-sm: 0.5rem;
+  --ars-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04);
+  --ars-shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.10);
+
+  /* Re-point Bootstrap at the brand */
+  --bs-primary: var(--ars-primary);
+  --bs-primary-rgb: var(--ars-primary-rgb);
+  --bs-link-color: var(--ars-primary-hover);
+  --bs-link-color-rgb: 43, 77, 126;
+  --bs-link-hover-color: var(--ars-primary);
+  --bs-body-bg: var(--ars-bg);
+  --bs-body-color: var(--ars-text);
+  --bs-secondary-color: var(--ars-muted);
+  --bs-border-color: var(--ars-border);
+  --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bs-body-font-size: 0.95rem;
+}
+
+body { background-color: var(--ars-bg); color: var(--ars-text); }
+.text-muted { color: var(--ars-muted) !important; }
+h1, h2, h3, h4, h5, h6 { color: var(--ars-text); letter-spacing: -0.01em; }
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5 { font-weight: 650; }
+.tabular, .stat-value, .table td, .score-figure { font-variant-numeric: tabular-nums; }
+
+/* ---------- Accessibility ---------- */
+:focus-visible { outline: 3px solid var(--ars-focus); outline-offset: 2px; border-radius: 4px; }
+.navbar :focus-visible, .btn-primary:focus-visible { outline-color: #ffffff; box-shadow: 0 0 0 5px var(--ars-primary); }
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+  border-color: var(--ars-accent);
+  box-shadow: 0 0 0 0.25rem rgba(59, 111, 182, 0.28);
+}
+.skip-link {
+  position: absolute; left: 0.75rem; top: -4rem; z-index: 2000;
+  background: #ffffff; color: var(--ars-primary); padding: 0.6rem 1rem;
+  border-radius: var(--ars-radius-sm); font-weight: 600; box-shadow: var(--ars-shadow-lg);
+}
+.skip-link:focus { top: 0.75rem; }
+main:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+/* ---------- Top bar ---------- */
+.app-navbar { background: var(--ars-primary); padding: 0.6rem 1rem; box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset; }
+.app-navbar .navbar-brand { display: flex; align-items: center; gap: 0.6rem; color: #ffffff; font-weight: 650; font-size: 1.05rem; margin: 0; }
+.brand-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: 0.55rem; background: #ffffff; color: var(--ars-primary);
+}
+.brand-mark svg { width: 1.2rem; height: 1.2rem; }
+.app-navbar .user-chip { color: #e6edf7; font-size: 0.85rem; }
+.app-navbar .user-chip .badge { background: rgba(255,255,255,0.18) !important; color: #ffffff !important; font-weight: 600; }
+.app-navbar .btn-outline-light { --bs-btn-border-color: rgba(255,255,255,0.5); }
+.menu-toggle { color: #ffffff; border: 1px solid rgba(255,255,255,0.5); background: transparent; border-radius: var(--ars-radius-sm); padding: 0.3rem 0.7rem; font-size: 0.9rem; }
+
+/* ---------- Sidebar ---------- */
+.sidebar { background: var(--ars-surface); border-right: 1px solid var(--ars-border); }
+@media (min-width: 768px) { .sidebar { min-height: calc(100vh - 56px); } }
+@media (max-width: 767.98px) { .sidebar { border-right: 0; border-bottom: 1px solid var(--ars-border); } }
+.sidebar .nav-link {
+  color: var(--ars-text); border-radius: var(--ars-radius-sm); padding: 0.5rem 0.75rem;
+  display: flex; align-items: center; gap: 0.6rem; font-weight: 500; position: relative;
+}
+.sidebar .nav-link:hover { background: var(--ars-primary-soft); color: var(--ars-primary); }
+.sidebar .nav-link.active { background: var(--ars-primary); color: #ffffff; }
+.sidebar .nav-icon { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+.sidebar-heading {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ars-muted);
+  font-weight: 700; padding: 1rem 0.75rem 0.25rem;
+}
+.sidebar-course { border-radius: var(--ars-radius-sm); }
+.sidebar-course > summary {
+  list-style: none; cursor: pointer; padding: 0.45rem 0.75rem; border-radius: var(--ars-radius-sm);
+  font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+}
+.sidebar-course > summary::-webkit-details-marker { display: none; }
+.sidebar-course > summary::after { content: "\25BE"; color: var(--ars-muted); }
+.sidebar-course[open] > summary::after { content: "\25B4"; }
+.sidebar-course > summary:hover { background: var(--ars-primary-soft); }
+.sidebar-course .course-name { display: block; font-weight: 400; font-size: 0.78rem; color: var(--ars-muted); }
+.sidebar-course ul { list-style: none; margin: 0.15rem 0 0.4rem 0.6rem; padding-left: 0.6rem; border-left: 2px solid var(--ars-border); }
+.sidebar-course .nav-link { padding: 0.35rem 0.6rem; font-size: 0.88rem; }
+
+/* ---------- Main area and page header ---------- */
+.app-main { max-width: 1320px; }
+.page-header {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start;
+  gap: 0.75rem 1rem; margin-bottom: 1.5rem;
+}
+.page-header h1 { margin: 0 0 0.15rem; font-size: 1.6rem; }
+.page-header .page-subtitle { color: var(--ars-muted); margin: 0; }
+.page-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.breadcrumb-lite { font-size: 0.85rem; color: var(--ars-muted); margin-bottom: 0.35rem; }
+.breadcrumb-lite a { color: var(--ars-muted); text-decoration: none; }
+.breadcrumb-lite a:hover { color: var(--ars-primary); text-decoration: underline; }
+.section-title { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+.section-title small { font-weight: 400; color: var(--ars-muted); }
+
+/* ---------- Cards ---------- */
+.card { border: 1px solid var(--ars-border); border-radius: var(--ars-radius); box-shadow: var(--ars-shadow); background: var(--ars-surface); }
+.card-header {
+  background: var(--ars-surface); border-bottom: 1px solid var(--ars-border); font-weight: 600;
+  padding: 0.8rem 1.1rem; border-radius: var(--ars-radius) var(--ars-radius) 0 0 !important;
+}
+.card-footer { background: #fafbfd; border-top: 1px solid var(--ars-border); }
+.card-body { padding: 1.1rem; }
+.card.border-danger { border-color: #e3a3a9 !important; }
+.card-header.text-danger { color: var(--risk-high-text) !important; }
+
+/* ---------- Stat cards ---------- */
+.stat-card { border-left: 5px solid var(--stat-tone, var(--ars-accent)); height: 100%; }
+.stat-card .stat-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ars-muted); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.stat-card .stat-value { font-size: 2.1rem; font-weight: 700; line-height: 1.15; color: var(--ars-text); }
+.stat-card .stat-hint { font-size: 0.82rem; color: var(--ars-muted); margin-top: 0.15rem; }
+.stat-primary { --stat-tone: var(--ars-primary); }
+.stat-low { --stat-tone: var(--risk-low-accent); }
+.stat-medium { --stat-tone: var(--risk-medium-accent); }
+.stat-high { --stat-tone: var(--risk-high-accent); }
+.stat-pending { --stat-tone: var(--risk-pending-accent); }
+
+/* ---------- Risk badges (text label always shown, so colour is never the only signal) ---------- */
+.risk-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 999px;
+  font-weight: 650; font-size: 0.82rem; border: 1px solid transparent; white-space: nowrap; line-height: 1.3;
+}
+.risk-badge .risk-icon { font-size: 0.8em; }
+.risk-low { background: var(--risk-low-bg); color: var(--risk-low-text); border-color: #a9d3bd; }
+.risk-medium { background: var(--risk-medium-bg); color: var(--risk-medium-text); border-color: #ecd387; }
+.risk-high { background: var(--risk-high-bg); color: var(--risk-high-text); border-color: #ebb0b6; }
+.risk-pending { background: var(--risk-pending-bg); color: var(--risk-pending-text); border-color: #c4c8cc; }
+.risk-badge.risk-lg { font-size: 1rem; padding: 0.4rem 0.95rem; }
+
+/* ---------- Buttons ---------- */
+.btn { border-radius: var(--ars-radius-sm); font-weight: 550; }
+.btn-primary { --bs-btn-bg: var(--ars-primary); --bs-btn-border-color: var(--ars-primary); --bs-btn-hover-bg: var(--ars-primary-hover); --bs-btn-hover-border-color: var(--ars-primary-hover); --bs-btn-active-bg: #16304f; --bs-btn-active-border-color: #16304f; --bs-btn-disabled-bg: var(--ars-primary); --bs-btn-disabled-border-color: var(--ars-primary); }
+.btn-outline-primary { --bs-btn-color: var(--ars-primary); --bs-btn-border-color: var(--ars-primary); --bs-btn-hover-bg: var(--ars-primary); --bs-btn-hover-border-color: var(--ars-primary); --bs-btn-active-bg: var(--ars-primary); --bs-btn-active-border-color: var(--ars-primary); }
+.btn-outline-secondary { --bs-btn-color: #3d4756; --bs-btn-border-color: #aeb6c2; --bs-btn-hover-bg: #eef1f6; --bs-btn-hover-color: var(--ars-text); --bs-btn-hover-border-color: #8d97a6; --bs-btn-active-bg: #e3e8f0; --bs-btn-active-color: var(--ars-text); }
+.btn-export { display: inline-flex; align-items: center; gap: 0.4rem; }
+.btn-export svg { width: 1rem; height: 1rem; }
+.btn-export-pdf { --bs-btn-color: #842029; --bs-btn-border-color: #c9606a; --bs-btn-hover-bg: #842029; --bs-btn-hover-border-color: #842029; --bs-btn-hover-color: #fff; --bs-btn-active-bg: #6d1a22; --bs-btn-active-color: #fff; }
+.btn-export-xlsx { --bs-btn-color: #0f5132; --bs-btn-border-color: #5fae88; --bs-btn-hover-bg: #0f5132; --bs-btn-hover-border-color: #0f5132; --bs-btn-hover-color: #fff; --bs-btn-active-bg: #0b3d26; --bs-btn-active-color: #fff; }
+
+/* ---------- Tables ---------- */
+.table { --bs-table-bg: transparent; --bs-table-hover-bg: #f3f6fb; margin-bottom: 0; }
+.table > thead > tr > th, .table-light { --bs-table-bg: var(--ars-head-bg); --bs-table-color: var(--ars-head-text); --bs-table-border-color: var(--ars-border); }
+.table > thead > tr > th {
+  background-color: var(--ars-head-bg); color: var(--ars-head-text); font-size: 0.76rem; text-transform: uppercase;
+  letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid var(--ars-border); white-space: nowrap;
+}
+.table > tbody > tr > td, .table > tbody > tr > th { vertical-align: middle; }
+.table-responsive { border-radius: 0 0 var(--ars-radius) var(--ars-radius); }
+.card > .table-responsive:first-child, .card > .table-responsive:first-child table { border-radius: var(--ars-radius); }
+.table-bordered > :not(caption) > * { border-color: var(--ars-border); }
+.table-actions { white-space: nowrap; text-align: right; }
+.table-actions form { display: inline-block; margin: 0; }
+
+/* ---------- Forms ---------- */
+.form-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.form-control, .form-select { border-color: #b8c0cc; border-radius: var(--ars-radius-sm); padding: 0.55rem 0.75rem; }
+.form-text { color: var(--ars-muted); }
+.form-card { max-width: 640px; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--ars-border); }
+.invalid-feedback, .text-danger.small { color: #b02a37 !important; }
+
+/* ---------- Alerts and empty states ---------- */
+.alert { border-radius: var(--ars-radius-sm); border-width: 1px; }
+.alert-success { background: #e4f3ea; border-color: #a9d3bd; color: #0f5132; }
+.alert-warning { background: #fff6dc; border-color: #ecd387; color: #664d03; }
+.alert-danger { background: #fbe4e6; border-color: #ebb0b6; color: #842029; }
+.alert-info { background: #e5eefb; border-color: #b7cdee; color: #1f3a5f; }
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--ars-muted); }
+.empty-state .empty-icon { width: 3rem; height: 3rem; border-radius: 50%; background: var(--ars-primary-soft); color: var(--ars-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem; font-size: 1.4rem; }
+.empty-state h2, .empty-state h3 { font-size: 1.1rem; color: var(--ars-text); margin-bottom: 0.25rem; }
+
+/* ---------- Dashboard cards ---------- */
+.course-card { height: 100%; display: flex; flex-direction: column; }
+.course-card .course-code { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; color: var(--ars-accent); text-transform: uppercase; }
+.course-card .course-title { font-size: 1.15rem; font-weight: 650; margin: 0.1rem 0 0.25rem; }
+.course-card .card-body { flex: 1; }
+.course-card .course-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.9rem 1.1rem; border-top: 1px solid var(--ars-border); background: #fafbfd; border-radius: 0 0 var(--ars-radius) var(--ars-radius); }
+.quick-link-card { text-decoration: none; color: inherit; display: block; height: 100%; transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+.quick-link-card:hover { box-shadow: var(--ars-shadow-lg); border-color: var(--ars-accent); color: inherit; }
+
+/* ---------- Auth pages ---------- */
+.auth-wrap { min-height: calc(100vh - 12rem); display: flex; align-items: center; justify-content: center; }
+.auth-card { width: 100%; max-width: 420px; }
+.auth-card .card { border-radius: 1rem; box-shadow: var(--ars-shadow-lg); }
+main.container > .alert { max-width: 420px; margin-left: auto; margin-right: auto; }
+.auth-brand { text-align: center; margin-bottom: 1.25rem; }
+.auth-brand .brand-mark { width: 3rem; height: 3rem; background: var(--ars-primary); color: #fff; border-radius: 0.8rem; margin-bottom: 0.6rem; }
+.auth-brand .brand-mark svg { width: 1.7rem; height: 1.7rem; }
+
+/* ==========================================================================
+   Course Risk Report
+   ========================================================================== */
+.risk-filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.risk-filter-bar .filter-label { font-weight: 600; margin-right: 0.25rem; }
+.risk-filter { display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 999px; font-weight: 600; }
+.risk-filter .count { background: rgba(0,0,0,0.08); border-radius: 999px; padding: 0 0.5rem; font-size: 0.8rem; }
+.risk-filter.active { background: var(--ars-primary); border-color: var(--ars-primary); color: #ffffff; }
+.risk-filter.active .count { background: rgba(255,255,255,0.25); }
+
+.student-record-row { --row-tone: transparent; }
+.student-record-row[data-risk="Low Risk"] { --row-tone: var(--risk-low-accent); }
+.student-record-row[data-risk="Medium Risk"] { --row-tone: var(--risk-medium-accent); }
+.student-record-row[data-risk="High Risk"] { --row-tone: var(--risk-high-accent); }
+.student-record-row[data-risk="Pending"] { --row-tone: var(--risk-pending-accent); }
+.student-record-row > td:first-child { box-shadow: inset 5px 0 0 var(--row-tone); }
+.student-record-row a.fw-bold { color: var(--ars-primary); }
+.student-record-row a.fw-bold:hover { text-decoration: underline !important; }
+.metric-pending { color: var(--ars-muted); font-style: italic; }
+.score-chip { font-weight: 700; font-size: 1.05rem; }
+.mini-bar { height: 0.4rem; border-radius: 999px; background: #e6eaf1; overflow: hidden; min-width: 3.5rem; margin-top: 0.25rem; }
+.mini-bar > span { display: block; height: 100%; background: var(--ars-accent); border-radius: 999px; }
+.mini-bar.is-risk > span { background: var(--risk-high-accent); }
+.risk-details-btn { font-size: 0.82rem; padding: 0.2rem 0.6rem; }
+.risk-details-panel td { background: #f8fafd; border-top: 0 !important; }
+.risk-details-panel .detail-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ars-muted); font-weight: 700; margin-bottom: 0.3rem; }
+.risk-details-panel ul { margin-bottom: 0.5rem; padding-left: 1.1rem; }
+.risk-no-match { display: none; }
+
+/* ==========================================================================
+   Student Risk Details
+   ========================================================================== */
+.risk-hero { border-left: 6px solid var(--hero-tone, var(--risk-pending-accent)); }
+.risk-hero.tone-low { --hero-tone: var(--risk-low-accent); }
+.risk-hero.tone-medium { --hero-tone: var(--risk-medium-accent); }
+.risk-hero.tone-high { --hero-tone: var(--risk-high-accent); }
+.risk-hero .score-figure { font-size: 3rem; font-weight: 750; line-height: 1; }
+.risk-hero .score-scale { color: var(--ars-muted); font-size: 1rem; font-weight: 500; }
+.hero-identity dt { color: var(--ars-muted); font-weight: 600; font-size: 0.82rem; }
+.hero-identity dd { margin-bottom: 0.4rem; }
+.indicator-card { height: 100%; }
+.indicator-card .indicator-name { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ars-muted); font-weight: 700; }
+.indicator-card .indicator-value { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+.indicator-card .indicator-status { font-size: 0.85rem; font-weight: 600; }
+.indicator-card.is-flagged { border-top: 4px solid var(--risk-high-accent); }
+.indicator-card.is-ok { border-top: 4px solid var(--risk-low-accent); }
+.indicator-card.is-unavailable { border-top: 4px solid var(--risk-pending-accent); }
+.indicator-card .progress { height: 0.5rem; background: #e6eaf1; }
+.indicator-card .progress-bar { background: var(--ars-accent); }
+.indicator-card.is-flagged .progress-bar { background: var(--risk-high-accent); }
+.indicator-card.is-ok .progress-bar { background: var(--risk-low-accent); }
+.action-panel .card-header { display: flex; align-items: center; gap: 0.5rem; }
+.action-panel ul { padding-left: 1.2rem; margin-bottom: 0; }
+.action-panel li + li { margin-top: 0.35rem; }
+.scroll-panel { max-height: 280px; overflow-y: auto; }
+.section-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
+.section-nav a { font-size: 0.85rem; padding: 0.25rem 0.8rem; border-radius: 999px; background: var(--ars-surface); border: 1px solid var(--ars-border); color: var(--ars-primary); text-decoration: none; font-weight: 550; }
+.section-nav a:hover { background: var(--ars-primary-soft); }
+
+/* Status badges used in tables (Bootstrap badge colours are kept; this just tidies them) */
+.badge { font-weight: 600; letter-spacing: 0.01em; }
+
+/* ---------- Print: hide navigation chrome ---------- */
+@media print {
+  .app-navbar, .sidebar, .page-actions, .skip-link, .btn { display: none !important; }
+  body { background: #ffffff; }
+}
+
+/* Filter buttons: darker text colours so they pass contrast on white */
+.risk-filter.btn-outline-success { --bs-btn-color: var(--risk-low-text); --bs-btn-border-color: var(--risk-low-accent); --bs-btn-hover-bg: var(--risk-low-bg); --bs-btn-hover-color: var(--risk-low-text); --bs-btn-hover-border-color: var(--risk-low-accent); }
+.risk-filter.btn-outline-warning { --bs-btn-color: var(--risk-medium-text); --bs-btn-border-color: var(--risk-medium-accent); --bs-btn-hover-bg: var(--risk-medium-bg); --bs-btn-hover-color: var(--risk-medium-text); --bs-btn-hover-border-color: var(--risk-medium-accent); }
+.risk-filter.btn-outline-danger { --bs-btn-color: var(--risk-high-text); --bs-btn-border-color: var(--risk-high-accent); --bs-btn-hover-bg: var(--risk-high-bg); --bs-btn-hover-color: var(--risk-high-text); --bs-btn-hover-border-color: var(--risk-high-accent); }
+.risk-filter.btn-outline-secondary { --bs-btn-color: var(--risk-pending-text); --bs-btn-border-color: var(--risk-pending-accent); }
+.risk-filter.active, .risk-filter.active:hover { background: var(--ars-primary); border-color: var(--ars-primary); color: #ffffff; }
+
+[id="risk-calculation"], [id="attendance-details"], [id="assessment-details"], [id="assignment-details"], [id="risk-history"] { scroll-margin-top: 1rem; }
